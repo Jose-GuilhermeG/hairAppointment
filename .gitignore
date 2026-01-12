@@ -1,0 +1,11 @@
+#cache
+__pycache__
+*pyc
+.ruff_cache
+
+#project
+.env
+env
+venv
+ENV
+VENV
