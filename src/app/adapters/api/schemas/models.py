@@ -5,5 +5,5 @@ from typing import Optional
 class UserModel(SQLModel , table=True):
     id : Optional[int] = Field(primary_key=True , unique=True , default=None)
     name : str
-    email : EmailStr = Field(unique=True)
+    email : EmailStr = Field(unique=True , index=True)
     password : str

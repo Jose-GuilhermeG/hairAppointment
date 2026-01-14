@@ -4,7 +4,7 @@ from fastapi import Depends
 
 from src.configs.settings import DATABASE_URI
 
-from sqlmodel import Session , create_engine
+from sqlmodel import create_engine
 
 engine = create_engine(DATABASE_URI)
 

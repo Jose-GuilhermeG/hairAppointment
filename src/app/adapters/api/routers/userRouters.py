@@ -1,10 +1,11 @@
-from fastapi import APIRouter , status
+from fastapi import APIRouter , status , Body
+from typing import Annotated
 
-from src.app.application.use_cases.userUseCases import RegisterUserCase , LoginUseCase
-from src.app.adapters.api.schemas.serializers import UserRegisterIn , UserSessionCode , UserLoginIn , UserProfile
+from src.app.application.use_cases.userUseCases import RegisterUserCase , LoginUseCase , SetPasswordUseCase
+from src.app.adapters.api.schemas.serializers import UserRegisterIn , UserSessionCode , UserLoginIn , UserProfile , SimpleResponse
 from src.app.adapters.hashEncrypt import BcryptHashEncrypt
 from src.app.adapters.api.dependencies.repository import UserRepositoryDep as RepositoryDep
-from src.app.adapters.api.dependencies.auth import UserDep , AuthDep
+from src.app.adapters.api.dependencies.auth import UserDep , AuthDep , SessionIdDep
 
 router = APIRouter(
     prefix="/account",
@@ -42,3 +43,16 @@ async def loginView(user_data : UserLoginIn , repository : RepositoryDep , auth 
 async def profileView(user : UserDep):
     """user profile view"""
     return UserProfile(name = user.name , email = user.email)
+
+
+@router.post(
+    "/change-password/",
+    status_code=status.HTTP_200_OK,
+    response_model=SimpleResponse
+)
+async def change_password_view(repository : RepositoryDep,user : UserDep , auth : AuthDep,session_id : SessionIdDep, password : Annotated[str , Body(embed=True , min_length=1 , title="new password")]):
+    """User change view """
+    SetPasswordUseCase(repository ,BcryptHashEncrypt).execute(user , password)
+    repository.session.commit()
+    auth.add_token_to_deathlist(session_id)
+    return SimpleResponse(detail="password change")

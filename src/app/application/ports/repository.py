@@ -3,7 +3,6 @@ from abc import ABC , abstractmethod
 class IRepository(
     ABC
 ):
-
     @abstractmethod
     def save(self , data : dict[str,any]):
         pass
@@ -20,9 +19,6 @@ class IRepository(
     def get(self , field : str , value : any):
         pass
 
-    @abstractmethod
-    def filter(self):
-        pass
 
 class IAppoinmentRepository(
     IRepository

@@ -1,6 +1,6 @@
 from redis import Redis
 
-from src.configs.settings import REDIS_HOST , REDIS_PASSWORD , REDIS_PORT , SESSION_EXPIRE_TIME
+from src.configs.settings import REDIS_HOST , REDIS_PASSWORD , REDIS_PORT
 
 
 redis = Redis(

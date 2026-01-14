@@ -1,7 +1,7 @@
 from src.app.application.ports.repository import IUserRepository
 from src.app.application.ports.hashsEncrypt import IHashEncrypt
 from src.app.domain.entities import User
-from src.app.domain.exceptions import IntegrityException
+from src.app.domain.exceptions import IntegrityException , ValidateException
 
 
 class RegisterUserCase:
@@ -10,7 +10,12 @@ class RegisterUserCase:
         self.passwordHash = passwordHash
 
     async def execute(self , data : dict[str , str])->User:
-        password = self.passwordHash.encrypt(data.pop("password"))
+        raw_password = data.get("password" , None)
+
+        if raw_password is None or len(raw_password) < 8 :
+            raise ValidateException("'password' lenght can't be less then 8")
+
+        password = self.passwordHash.encrypt(raw_password)
         user = User(**data , password=password)
         if self.repository.get("email" , user.email):
             raise IntegrityException("An user with that email alright exists")
@@ -32,9 +37,12 @@ class LoginUseCase:
 
         return user.id
 
-class SetPassword:
+class SetPasswordUseCase:
     def __init__(self , repository : IUserRepository , passwordHash : IHashEncrypt):
        self.repository = repository
        self.passwordHash = passwordHash
-    
-    
+
+    def execute(self, user : User ,new_password : str) -> None:
+        hashed_pass = self.passwordHash.encrypt(new_password)
+        user.password = hashed_pass
+        self.repository.save(user)

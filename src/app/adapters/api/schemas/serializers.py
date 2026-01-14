@@ -1,9 +1,11 @@
 from pydantic import BaseModel , EmailStr
 
+class SimpleResponse(BaseModel):
+    detail : str
+
 class UserSessionCode(BaseModel):
     detail : str
     session_id : str
-
 
 class UserRegisterIn(
     BaseModel
@@ -15,7 +17,7 @@ class UserRegisterIn(
 class UserLoginIn(
     BaseModel
 ):
-    email : str
+    email : EmailStr
     password : str
 
 class UserProfile(
