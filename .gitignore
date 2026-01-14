@@ -9,3 +9,6 @@ env
 venv
 ENV
 VENV
+
+#logs
+*.log

@@ -1,28 +1,63 @@
 from sqlmodel import select
+from sqlmodel import Session , SQLModel
 
 from src.app.adapters.api.schemas.models import UserModel
-from src.app.domain.entities import User
-from src.app.application.ports.repository import IUserRepository
+from src.app.application.ports.repository import IUserRepository , IRepository
 
-from sqlmodel import Session
+class BaseRepositoryDb(IRepository):
+    _model : SQLModel = None
 
-
-class UserRepositoryDb(IUserRepository):
-    def __init__(self , session : Session):
+    def __init__(self, mapper , session : Session):
+        super().__init__(mapper)
         self.session = session
 
-    def create(self , user : User)->UserModel:
-        userModel = UserModel(name=user.name,email=user.email,password=user.password)
-        self.session.add(userModel)
-        return userModel
+    def save(self, entitie):
+        model = self.mapper.to_model(entitie)
+        self.session.add(model)
+        return self.mapper.to_entitie(model)
 
-    def get(self , field , value) -> UserModel:
-        query = select(UserModel).where(getattr(UserModel , field) == value)
-        return self.session.exec(query).first()
+    def get(self, field, value, exec = True):
+        query = select(self._model).where(getattr(self._model , field) == value)
 
-    def save(self , user : UserModel) -> UserModel:
-        self.session.add(user)
-        return user
+        if exec:
+            return self.mapper.to_entitie(self.exec(query).first())
 
-    def delete(self , user : UserModel)->None:
-        return self.session.delete(user)
+        return query
+
+    def create(self, entitie):
+        model = self.mapper.to_model(entitie)
+        self.session.add(model)
+        return self.mapper.to_entitie(model)
+
+    def delete(self, entitie):
+        model = self.mapper.to_model(entitie)
+        self.session.delete(model)
+
+    def all(self, exec = True):
+        query = select(self._model)
+        if exec:
+            return self.mapper.to_entitie(self.exec(query).all(),many=True)
+
+        return query
+
+    def limit(self, limit, offeset, exec = True):
+        query = select(self._model).limit(limit).offset(offeset)
+
+        if exec:
+            return self.mapper.to_entitie(self.exec(query).all())
+
+        return query
+
+    def exec(self, query):
+        return self.session.exec(query)
+
+
+
+class UserRepositoryDb(
+    BaseRepositoryDb,
+    IUserRepository,
+):
+    _model = UserModel
+
+    def __init__(self, mapper, session):
+        super().__init__(mapper, session)

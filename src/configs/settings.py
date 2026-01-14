@@ -27,3 +27,9 @@ DATABASE_URI = f"{DATABASE_ENGINE}://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABA
 REDIS_HOST = env("REDIS_HOST")
 REDIS_PORT = env("REDIS_PORT")
 REDIS_PASSWORD = env("REDIS_PASSWORD")
+
+#Log config
+LOG_FILE = join(BASE_DIR , "loggin.log")
+LOG_FILE_MODE = "a"
+LOG_FORMAT = "[%(levelname)s] %(module)s - %(asctime)s  : %(message)s "
+LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"

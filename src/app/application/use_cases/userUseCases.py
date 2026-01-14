@@ -10,7 +10,7 @@ class RegisterUserCase:
         self.passwordHash = passwordHash
 
     async def execute(self , data : dict[str , str])->User:
-        raw_password = data.get("password" , None)
+        raw_password = data.pop("password")
 
         if raw_password is None or len(raw_password) < 8 :
             raise ValidateException("'password' lenght can't be less then 8")
@@ -42,7 +42,22 @@ class SetPasswordUseCase:
        self.repository = repository
        self.passwordHash = passwordHash
 
-    def execute(self, user : User ,new_password : str) -> None:
+    def execute(self, user_id : int ,new_password : str) -> None:
+        user = self.repository.get("id" , user_id)
         hashed_pass = self.passwordHash.encrypt(new_password)
         user.password = hashed_pass
         self.repository.save(user)
+
+class UserDetailsUseCase:
+    def __init__(self , repository : IUserRepository):
+       self.repository = repository
+
+    def execute(self,user_id : int) -> User:
+        return self.repository.get("id",user_id)
+
+class ListUsersUseCase:
+    def __init__(self , repository : IUserRepository):
+        self.repository = repository
+
+    def execute(self) -> list[User]:
+        return self.repository.all()

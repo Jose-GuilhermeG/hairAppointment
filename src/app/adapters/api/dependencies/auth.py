@@ -55,8 +55,7 @@ SessionIdDep = Annotated[str , Header()]
 
 async def login_required(session_id : SessionIdDep , auth_manager : AuthDep)->UserModel:
     user_id = auth_manager.get_user_id(session_id)
-    user = auth_manager.get_user(user_id)
-    return user
+    return user_id
 
 
-UserDep = Annotated[int , Depends(login_required)]
+UserIdDep = Annotated[int , Depends(login_required)]
