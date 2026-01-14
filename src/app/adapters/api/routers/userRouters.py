@@ -2,8 +2,8 @@ from fastapi import APIRouter , status , Body
 from typing import Annotated
 from logging import getLogger
 
-from src.app.application.use_cases.userUseCases import RegisterUserCase , LoginUseCase , SetPasswordUseCase , ListUsersUseCase , UserDetailsUseCase
-from src.app.adapters.api.schemas.serializers import UserRegisterIn , UserSessionCode , UserLoginIn , UserProfile , SimpleResponse
+from src.app.application.use_cases.userUseCases import RegisterUserCase , LoginUseCase , SetPasswordUseCase , ListUsersUseCase , UserDetailsUseCase , UpdateUserUseCase
+from src.app.adapters.api.schemas.serializers import UserRegisterIn , UserSessionCode , UserLoginIn , UserProfile , SimpleResponse , UpdateUser
 from src.app.adapters.hashEncrypt import BcryptHashEncrypt
 from src.app.adapters.api.dependencies.repository import UserRepositoryDep as RepositoryDep
 from src.app.adapters.api.dependencies.auth import UserIdDep , AuthDep , SessionIdDep
@@ -23,7 +23,6 @@ logger = getLogger(__name__)
 async def registerView(userData : UserRegisterIn , repository : RepositoryDep , auth : AuthDep ):
     """register an user and return his session code"""
     user = await RegisterUserCase(repository,BcryptHashEncrypt).execute(userData.model_dump())
-    repository.session.commit()
     token = auth.create_user_token(user.id)
     logger.info("User Created")
     return UserSessionCode(detail="created", session_id=token)
@@ -71,3 +70,12 @@ async def change_password_view(repository : RepositoryDep,user_id : UserIdDep , 
 async def list_users_view(repository : RepositoryDep):
     users = ListUsersUseCase(repository).execute()
     return [UserProfile(email=user.email , name = user.name) for user in users ]
+
+@router.patch(
+    "/me/",
+    status_code=status.HTTP_200_OK,
+    response_model=SimpleResponse
+)
+def update_user_view(user_id : UserIdDep, repository : RepositoryDep ,user_data : UpdateUser):
+    UpdateUserUseCase(repository).execute(user_id,user_data.model_dump(exclude_unset=True))
+    return SimpleResponse(detail="User updated")

@@ -25,3 +25,9 @@ class UserProfile(
 ):
     name : str
     email : str
+
+class UpdateUser(
+    BaseModel
+):
+
+    name : str | None

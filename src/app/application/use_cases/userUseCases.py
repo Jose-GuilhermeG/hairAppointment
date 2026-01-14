@@ -61,3 +61,16 @@ class ListUsersUseCase:
 
     def execute(self) -> list[User]:
         return self.repository.all()
+
+class UpdateUserUseCase:
+    def __init__(self , repository : IUserRepository):
+        self.repository = repository
+
+    def execute(self , user_id : int ,data : dict[str , str]) -> User:
+        user = self.repository.get("id" , user_id)
+
+        for key , value in data.items():
+            if hasattr(user,key):
+                setattr(user,key,value)
+
+        return self.repository.save(user)

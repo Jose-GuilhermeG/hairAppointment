@@ -8,6 +8,7 @@ from src.app.adapters.api.routers import userRouters
 from src.app.adapters.api.dependencies.db import engine
 from src.app.adapters.api.errsHandler import integrity_exception_handler , internal_exception_err , unauthorize_exception_handler , validate_exception_handler
 from src.app.domain.exceptions import IntegrityException , UnauthorizedException , ValidateException
+from src.app.adapters.api.middlewares import DbSessionMiddleware
 
 @asynccontextmanager
 async def lifespan(app :  FastAPI):
@@ -45,3 +46,5 @@ app.add_exception_handler(ValidateException, validate_exception_handler)
 app.add_exception_handler(IntegrityException , integrity_exception_handler)
 app.add_exception_handler(UnauthorizedException , unauthorize_exception_handler)
 app.add_exception_handler(Exception , internal_exception_err)
+
+app.add_middleware(DbSessionMiddleware)

@@ -20,6 +20,14 @@ class MinLenghtFieldException(ValidateException):
     def __init__(self, message = "Validation exception"):
         super().__init__(message)
 
+class DateFieldException(ValidateException):
+    def __init__(self, message = "Invalid date"):
+        super().__init__(message)
+
+class InvalidChoiceFieldException(ValidateException):
+    def __init__(self, message = "Invalid Choice"):
+        super().__init__(message)
+
 #  Internal exceptions
 
 class InternalException(Exception):

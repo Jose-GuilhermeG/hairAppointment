@@ -13,7 +13,7 @@ class BaseRepositoryDb(IRepository):
 
     def save(self, entitie):
         model = self.mapper.to_model(entitie)
-        self.session.add(model)
+        self.session.merge(model)
         return self.mapper.to_entitie(model)
 
     def get(self, field, value, exec = True):
@@ -27,6 +27,7 @@ class BaseRepositoryDb(IRepository):
     def create(self, entitie):
         model = self.mapper.to_model(entitie)
         self.session.add(model)
+        self.session.flush()
         return self.mapper.to_entitie(model)
 
     def delete(self, entitie):
@@ -58,6 +59,3 @@ class UserRepositoryDb(
     IUserRepository,
 ):
     _model = UserModel
-
-    def __init__(self, mapper, session):
-        super().__init__(mapper, session)
