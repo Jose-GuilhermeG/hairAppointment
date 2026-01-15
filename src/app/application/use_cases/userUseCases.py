@@ -9,7 +9,7 @@ class RegisterUserCase:
         self.repository = repository
         self.passwordHash = passwordHash
 
-    async def execute(self , data : dict[str , str])->User:
+    def execute(self , data : dict[str , str])->User:
         raw_password = data.pop("password")
 
         if raw_password is None or len(raw_password) < 8 :
