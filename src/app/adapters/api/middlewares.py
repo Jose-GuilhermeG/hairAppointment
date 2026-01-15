@@ -1,9 +1,11 @@
-from fastapi import Request
-from starlette.middleware.base import BaseHTTPMiddleware
-from sqlmodel import Session
 from types import FunctionType
 
+from fastapi import Request
+from sqlmodel import Session
+from starlette.middleware.base import BaseHTTPMiddleware
+
 from src.app.adapters.api.dependencies.db import engine
+
 
 class DbSessionMiddleware(
     BaseHTTPMiddleware

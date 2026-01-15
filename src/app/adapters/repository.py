@@ -1,9 +1,9 @@
-from sqlmodel import select
-from sqlmodel import Session , SQLModel
 from sqlalchemy import delete
+from sqlmodel import Session, SQLModel, select
 
 from src.app.adapters.api.schemas.models import UserModel
-from src.app.application.ports.repository import IUserRepository , IRepository
+from src.app.application.ports.repository import IRepository, IUserRepository
+
 
 class BaseRepositoryDb(IRepository):
     _model : SQLModel = None
@@ -39,7 +39,7 @@ class BaseRepositoryDb(IRepository):
     def all(self, exec = True):
         query = select(self._model)
         if exec:
-            return self.mapper.to_entitie(self.exec(query).all(),many=True)
+            return self.mapper.to_entitie(self.exec(query).all())
 
         return query
 

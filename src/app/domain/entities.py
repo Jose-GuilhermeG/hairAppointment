@@ -1,8 +1,15 @@
-from src.app.domain.enums import HairCutEnum
-from datetime import datetime , date
+from datetime import date, datetime
 
-from src.app.domain.exceptions import EmailFieldException , MinLenghtFieldException , DateFieldException  , InvalidChoiceFieldException , EmptyFieldException
-from src.app.domain.genericValidations import RequiredFieldValidation , IdFieldValidation
+from src.app.domain.enums import HairCutEnum
+from src.app.domain.exceptions import (
+    DateFieldException,
+    EmailFieldException,
+    EmptyFieldException,
+    InvalidChoiceFieldException,
+    MinLenghtFieldException,
+)
+from src.app.domain.genericValidations import IdFieldValidation, RequiredFieldValidation
+
 
 class User:
 
@@ -96,7 +103,7 @@ class Appoinment:
 
     @property
     def finish_at(self) -> date:
-        return self.__finish_at
+        return self.__finish_at #type: ignore[attr-defined]
 
     @finish_at.setter
     def finish_at(self , finish_at : date) -> None:

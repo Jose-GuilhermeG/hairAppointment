@@ -1,15 +1,16 @@
+from src.app.adapters.api.schemas.models import UserModel
 from src.app.application.ports.mapping import IMapping
 from src.app.domain.entities import User
-from src.app.adapters.api.schemas.models import UserModel
+
 
 class UserMapping(
-    IMapping
+    IMapping[User]
 ):
-    def to_model(self, entitie : User, many = False):
+    def to_model(self, entitie : User | list[User]):
         if entitie is None:
             return None
 
-        if many:
+        if isinstance(entitie,(list , tuple , set)):
             return self.model_many_convertion(entitie)
 
         user_model = UserModel(name = entitie.name , email = entitie.email , password = entitie.password)
@@ -19,11 +20,11 @@ class UserMapping(
 
         return user_model
 
-    def to_entitie(self, model, many = False):
+    def to_entitie(self, model):
         if model is None:
             return None
 
-        if many:
+        if isinstance(model,(list , tuple , set)):
             return self.entitie_many_convertion(model)
 
         user_entitie = User(name = model.name , email = model.email , password = model.password)
@@ -48,7 +49,7 @@ class UserMapping(
 
         return entitie_user_list
 
-    def model_many_convertion(entities : list[User])->list[UserModel]:
+    def model_many_convertion(self,entities : list[User])->list[UserModel]:
         model_user_list = []
 
         if not isinstance(entities, (set , list , tuple)):

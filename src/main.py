@@ -1,14 +1,34 @@
+from contextlib import asynccontextmanager
+from logging import INFO, FileHandler, StreamHandler, basicConfig, getLogger
+
 from fastapi import FastAPI
 from sqlmodel import SQLModel
-from contextlib import asynccontextmanager
-from logging import basicConfig ,StreamHandler,FileHandler, INFO , getLogger
 
-from src.configs.settings import DEBUG , LOG_FILE , LOG_FILE_MODE , LOG_FORMAT , LOG_DATE_FORMAT , SYSTEM_NAME , SYSTEM_VERSION , SYSTEM_DESCRIPTION
-from src.app.adapters.api.routers import userRouters
 from src.app.adapters.api.dependencies.db import engine
-from src.app.adapters.api.errsHandler import integrity_exception_handler , internal_exception_err , unauthorize_exception_handler , validate_exception_handler
-from src.app.domain.exceptions import IntegrityException , UnauthorizedException , ValidateException
+from src.app.adapters.api.errsHandler import (
+    integrity_exception_handler,
+    internal_exception_err,
+    unauthorize_exception_handler,
+    validate_exception_handler,
+)
 from src.app.adapters.api.middlewares import DbSessionMiddleware
+from src.app.adapters.api.routers import userRouters
+from src.app.domain.exceptions import (
+    IntegrityException,
+    UnauthorizedException,
+    ValidateException,
+)
+from src.configs.settings import (
+    DEBUG,
+    LOG_DATE_FORMAT,
+    LOG_FILE,
+    LOG_FILE_MODE,
+    LOG_FORMAT,
+    SYSTEM_DESCRIPTION,
+    SYSTEM_NAME,
+    SYSTEM_VERSION,
+)
+
 
 @asynccontextmanager
 async def lifespan(app :  FastAPI):

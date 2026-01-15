@@ -1,15 +1,16 @@
-from fastapi import Header , Depends
 from typing import Annotated
 from uuid import uuid4
 
-from src.configs.settings import  SESSION_EXPIRE_TIME
-from src.app.application.ports.repository import IUserRepository
-from src.app.application.ports.hashsEncrypt import IEncryptData
-from src.app.domain.exceptions import UnauthorizedException , IntegrityException
-from src.app.adapters.api.schemas.models import UserModel
-from src.app.adapters.api.dependencies.services import Redis , redis
+from fastapi import Depends, Header
+
 from src.app.adapters.api.dependencies.repository import UserRepositoryDep
+from src.app.adapters.api.dependencies.services import Redis, redis
 from src.app.adapters.hashEncrypt import Base64Encrypt
+from src.app.application.ports.hashsEncrypt import IEncryptData
+from src.app.application.ports.repository import IUserRepository
+from src.app.domain.entities import User
+from src.app.domain.exceptions import IntegrityException, UnauthorizedException
+from src.configs.settings import SESSION_EXPIRE_TIME
 
 
 class Auth:
@@ -31,7 +32,7 @@ class Auth:
             raise UnauthorizedException("User don't found")
         return user_id
 
-    def get_user(self , user_id : int) -> UserModel:
+    def get_user(self , user_id : int) -> User:
         return self.repository.get("id",user_id)
 
     def create_user_token(self , user_id : int , expire_time : int = SESSION_EXPIRE_TIME)->str:
@@ -48,12 +49,12 @@ class Auth:
         self.dataPersistence.sadd(self.deathList , decode_token)
 
 async def get_auth( repository : UserRepositoryDep) -> Auth:
-    return Auth(redis , repository , Base64Encrypt)
+    return Auth(redis , repository , Base64Encrypt())
 
 AuthDep = Annotated[Auth , Depends(get_auth)]
 SessionIdDep = Annotated[str , Header()]
 
-async def login_required(session_id : SessionIdDep , auth_manager : AuthDep)->UserModel:
+async def login_required(session_id : SessionIdDep , auth_manager : AuthDep)->int | None:
     user_id = auth_manager.get_user_id(session_id)
     return user_id
 

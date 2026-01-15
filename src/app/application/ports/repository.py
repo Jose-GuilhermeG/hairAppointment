@@ -1,24 +1,28 @@
-from abc import ABC , abstractmethod
+from abc import ABC, abstractmethod
+from typing import Any, Generic, TypeVar
 
-from src.app.domain.entities import User
 from src.app.application.ports.mapping import IMapping
+from src.app.domain.entities import User
+
+T = TypeVar("T")
 
 class IRepository(
-    ABC
+    ABC,
+    Generic[T]
 ):
     def __init__(self , mapper : IMapping):
         self.mapper = mapper
 
     @abstractmethod
-    def save(self , entitie : object):
+    def save(self , entitie : T) -> T:
         pass
 
     @abstractmethod
-    def create(self , entitie : object):
+    def create(self , entitie : T) -> T:
         pass
 
     @abstractmethod
-    def get(self , field : str , value : any , exec : bool = True):
+    def get(self , field : str , value : Any , exec : bool = True):
         pass
 
     @abstractmethod
@@ -45,7 +49,7 @@ class IAppoinmentRepository(
 
 
 class IUserRepository(
-    IRepository
+    IRepository[User]
 ):
 
     @abstractmethod

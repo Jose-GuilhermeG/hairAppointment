@@ -1,12 +1,14 @@
-from abc import ABC , abstractmethod
+from abc import ABC, abstractmethod
+from typing import Any
 
-from src.app.domain.exceptions import ValidateException , EmptyFieldException
+from src.app.domain.exceptions import EmptyFieldException, ValidateException
+
 
 class IGenericValidation(ABC):
 
     @staticmethod
     @abstractmethod
-    def validate(key : str , value : any ) -> any:
+    def validate(key : str , value : Any ) -> Any:
         pass
 
 class RequiredFieldValidation(

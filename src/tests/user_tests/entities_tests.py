@@ -1,7 +1,12 @@
 import pytest
 
 from src.app.domain.entities import User
-from src.app.domain.exceptions import EmptyFieldException , EmailFieldException , MinLenghtFieldException , ValidateException
+from src.app.domain.exceptions import (
+    EmailFieldException,
+    EmptyFieldException,
+    MinLenghtFieldException,
+    ValidateException,
+)
 
 
 class UserValidationTest:

@@ -1,8 +1,9 @@
 #setup configs
-from dotenv import load_dotenv
-from pathlib import Path
-from os.path import join
 from os import getenv as env
+from os.path import join
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__name__).absolute().parent
 DOT_ENV_FILE = join(BASE_DIR , ".env")

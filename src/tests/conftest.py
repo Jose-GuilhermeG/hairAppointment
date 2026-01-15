@@ -1,10 +1,10 @@
 import pytest
-from sqlmodel import Session , create_engine , SQLModel
+from sqlmodel import Session, SQLModel, create_engine
 
-from src.app.domain.entities import User
-from src.app.application.ports.repository import IUserRepository
-from src.app.adapters.repository import UserRepositoryDb
 from src.app.adapters.mapping import UserMapping
+from src.app.adapters.repository import UserRepositoryDb
+from src.app.application.ports.repository import IUserRepository
+from src.app.domain.entities import User
 from src.configs.settings import TEST_DATABASE_URI
 
 engine = create_engine(TEST_DATABASE_URI)

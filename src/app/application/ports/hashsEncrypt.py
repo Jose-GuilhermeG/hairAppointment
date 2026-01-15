@@ -1,23 +1,20 @@
-from abc import ABC , abstractmethod
+from abc import ABC, abstractmethod
+
 
 class IHashEncrypt(ABC):
-    @staticmethod
     @abstractmethod
-    def encrypt(content : str)->str:
+    def encrypt(self,content : str)->str:
         pass
 
-    @staticmethod
     @abstractmethod
-    def verify(content : str , verify_str : str)->bool:
+    def verify(self,content : str , verify_str : str)->bool:
         pass
 
 class IEncryptData(ABC):
-    @staticmethod
     @abstractmethod
-    def encrypt(content : str)->str:
+    def encrypt(self,content : str)->str:
         pass
 
-    @staticmethod
     @abstractmethod
-    def decode(content : str)->str:
+    def decode(self,content : str)->str | None:
         pass

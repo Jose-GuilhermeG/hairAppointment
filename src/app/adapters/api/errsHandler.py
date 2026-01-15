@@ -1,6 +1,12 @@
-from fastapi import  Request , status
+from fastapi import Request, status
 from fastapi.responses import JSONResponse
-from src.app.domain.exceptions import IntegrityException , UnauthorizedException , ValidateException
+
+from src.app.domain.exceptions import (
+    IntegrityException,
+    UnauthorizedException,
+    ValidateException,
+)
+
 
 async def integrity_exception_handler(request : Request , exc : IntegrityException)->JSONResponse:
     return JSONResponse(

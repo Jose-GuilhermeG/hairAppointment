@@ -1,7 +1,7 @@
-from src.app.application.ports.repository import IUserRepository
 from src.app.application.ports.hashsEncrypt import IHashEncrypt
+from src.app.application.ports.repository import IUserRepository
 from src.app.domain.entities import User
-from src.app.domain.exceptions import IntegrityException , ValidateException
+from src.app.domain.exceptions import IntegrityException, ValidateException
 
 
 class RegisterUserCase:
@@ -29,13 +29,17 @@ class LoginUseCase:
 
     def execute(self , data : dict[str,str])->int:
         user = self.repository.get("email" ,data.get("email",None))
+        password = data.get("password")
         if not user:
             raise IntegrityException("Doesn't user found with that email")
 
-        if not self.passwordHash.verify(data.get("password",None),user.password):
+        if password is None:
+            raise ValidateException("Password is required")
+
+        if not self.passwordHash.verify(password,user.password):
             raise IntegrityException("Incorrect password")
 
-        return user.id
+        return user.id #type: ignore[return-value]
 
 class SetPasswordUseCase:
     def __init__(self , repository : IUserRepository , passwordHash : IHashEncrypt):

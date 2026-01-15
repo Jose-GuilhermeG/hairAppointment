@@ -1,12 +1,30 @@
-from fastapi import APIRouter , status , Body
-from typing import Annotated
 from logging import getLogger
+from typing import Annotated
 
-from src.app.application.use_cases.userUseCases import RegisterUserCase , LoginUseCase , SetPasswordUseCase , ListUsersUseCase , UserDetailsUseCase , UpdateUserUseCase , DeleteUserUseCase
-from src.app.adapters.api.schemas.serializers import UserRegisterIn , UserSessionCode , UserLoginIn , UserProfile , SimpleResponse , UpdateUser
+from fastapi import APIRouter, Body, status
+
+from src.app.adapters.api.dependencies.auth import AuthDep, SessionIdDep, UserIdDep
+from src.app.adapters.api.dependencies.repository import (
+    UserRepositoryDep as RepositoryDep,
+)
+from src.app.adapters.api.schemas.serializers import (
+    SimpleResponse,
+    UpdateUser,
+    UserLoginIn,
+    UserProfile,
+    UserRegisterIn,
+    UserSessionCode,
+)
 from src.app.adapters.hashEncrypt import BcryptHashEncrypt
-from src.app.adapters.api.dependencies.repository import UserRepositoryDep as RepositoryDep
-from src.app.adapters.api.dependencies.auth import UserIdDep , AuthDep , SessionIdDep
+from src.app.application.use_cases.userUseCases import (
+    DeleteUserUseCase,
+    ListUsersUseCase,
+    LoginUseCase,
+    RegisterUserCase,
+    SetPasswordUseCase,
+    UpdateUserUseCase,
+    UserDetailsUseCase,
+)
 
 router = APIRouter(
     prefix="/account",
@@ -22,8 +40,8 @@ logger = getLogger(__name__)
 )
 async def register_view(userData : UserRegisterIn , repository : RepositoryDep , auth : AuthDep ):
     """register an user and return his session code"""
-    user = await RegisterUserCase(repository,BcryptHashEncrypt).execute(userData.model_dump())
-    token = auth.create_user_token(user.id)
+    user = RegisterUserCase(repository,BcryptHashEncrypt()).execute(userData.model_dump())
+    token = auth.create_user_token(user.id) #type: ignore[arg-type]
     logger.info("User Created")
     return UserSessionCode(detail="created", session_id=token)
 
@@ -34,7 +52,7 @@ async def register_view(userData : UserRegisterIn , repository : RepositoryDep ,
 )
 async def login_view(user_data : UserLoginIn , repository : RepositoryDep , auth : AuthDep):
     """login an user"""
-    user_id = LoginUseCase(repository , BcryptHashEncrypt).execute(user_data.model_dump())
+    user_id = LoginUseCase(repository , BcryptHashEncrypt()).execute(user_data.model_dump())
     session_code = auth.create_user_token(user_id)
     logger.info("User logated")
     return UserSessionCode(detail="logated", session_id=session_code)
@@ -57,7 +75,7 @@ async def profile_view(user_id : UserIdDep , repository : RepositoryDep):
 )
 async def change_password_view(repository : RepositoryDep,user_id : UserIdDep , auth : AuthDep,session_id : SessionIdDep, password : Annotated[str , Body(embed=True , min_length=1 , title="new password")]):
     """User change view """
-    SetPasswordUseCase(repository ,BcryptHashEncrypt).execute(user_id , password)
+    SetPasswordUseCase(repository ,BcryptHashEncrypt()).execute(user_id , password)
     auth.add_token_to_deathlist(session_id)
     return SimpleResponse(detail="password change")
 
