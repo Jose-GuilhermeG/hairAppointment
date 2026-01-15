@@ -3,7 +3,7 @@ from sqlmodel import SQLModel
 from contextlib import asynccontextmanager
 from logging import basicConfig ,StreamHandler,FileHandler, INFO , getLogger
 
-from src.configs.settings import DEBUG , LOG_FILE , LOG_FILE_MODE , LOG_FORMAT , LOG_DATE_FORMAT
+from src.configs.settings import DEBUG , LOG_FILE , LOG_FILE_MODE , LOG_FORMAT , LOG_DATE_FORMAT , SYSTEM_NAME , SYSTEM_VERSION , SYSTEM_DESCRIPTION
 from src.app.adapters.api.routers import userRouters
 from src.app.adapters.api.dependencies.db import engine
 from src.app.adapters.api.errsHandler import integrity_exception_handler , internal_exception_err , unauthorize_exception_handler , validate_exception_handler
@@ -34,6 +34,9 @@ async def lifespan(app :  FastAPI):
     yield
 
 app = FastAPI(
+    title=SYSTEM_NAME,
+    version=SYSTEM_VERSION,
+    description=SYSTEM_DESCRIPTION,
     debug=DEBUG,
     lifespan=lifespan
 )

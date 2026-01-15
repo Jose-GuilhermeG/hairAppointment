@@ -2,7 +2,7 @@ from fastapi import APIRouter , status , Body
 from typing import Annotated
 from logging import getLogger
 
-from src.app.application.use_cases.userUseCases import RegisterUserCase , LoginUseCase , SetPasswordUseCase , ListUsersUseCase , UserDetailsUseCase , UpdateUserUseCase
+from src.app.application.use_cases.userUseCases import RegisterUserCase , LoginUseCase , SetPasswordUseCase , ListUsersUseCase , UserDetailsUseCase , UpdateUserUseCase , DeleteUserUseCase
 from src.app.adapters.api.schemas.serializers import UserRegisterIn , UserSessionCode , UserLoginIn , UserProfile , SimpleResponse , UpdateUser
 from src.app.adapters.hashEncrypt import BcryptHashEncrypt
 from src.app.adapters.api.dependencies.repository import UserRepositoryDep as RepositoryDep
@@ -20,7 +20,7 @@ logger = getLogger(__name__)
     status_code=status.HTTP_201_CREATED,
     response_model=UserSessionCode
 )
-async def registerView(userData : UserRegisterIn , repository : RepositoryDep , auth : AuthDep ):
+async def register_view(userData : UserRegisterIn , repository : RepositoryDep , auth : AuthDep ):
     """register an user and return his session code"""
     user = await RegisterUserCase(repository,BcryptHashEncrypt).execute(userData.model_dump())
     token = auth.create_user_token(user.id)
@@ -32,7 +32,7 @@ async def registerView(userData : UserRegisterIn , repository : RepositoryDep , 
     status_code=status.HTTP_200_OK,
     response_model=UserSessionCode
 )
-async def loginView(user_data : UserLoginIn , repository : RepositoryDep , auth : AuthDep):
+async def login_view(user_data : UserLoginIn , repository : RepositoryDep , auth : AuthDep):
     """login an user"""
     user_id = LoginUseCase(repository , BcryptHashEncrypt).execute(user_data.model_dump())
     session_code = auth.create_user_token(user_id)
@@ -44,7 +44,7 @@ async def loginView(user_data : UserLoginIn , repository : RepositoryDep , auth 
     status_code=status.HTTP_200_OK,
     response_model=UserProfile
 )
-async def profileView(user_id : UserIdDep , repository : RepositoryDep):
+async def profile_view(user_id : UserIdDep , repository : RepositoryDep):
     """user profile view"""
     user = UserDetailsUseCase(repository).execute(user_id)
     return UserProfile(name = user.name , email = user.email)
@@ -58,7 +58,6 @@ async def profileView(user_id : UserIdDep , repository : RepositoryDep):
 async def change_password_view(repository : RepositoryDep,user_id : UserIdDep , auth : AuthDep,session_id : SessionIdDep, password : Annotated[str , Body(embed=True , min_length=1 , title="new password")]):
     """User change view """
     SetPasswordUseCase(repository ,BcryptHashEncrypt).execute(user_id , password)
-    repository.session.commit()
     auth.add_token_to_deathlist(session_id)
     return SimpleResponse(detail="password change")
 
@@ -76,6 +75,25 @@ async def list_users_view(repository : RepositoryDep):
     status_code=status.HTTP_200_OK,
     response_model=SimpleResponse
 )
-def update_user_view(user_id : UserIdDep, repository : RepositoryDep ,user_data : UpdateUser):
+async def update_user_view(user_id : UserIdDep, repository : RepositoryDep ,user_data : UpdateUser):
     UpdateUserUseCase(repository).execute(user_id,user_data.model_dump(exclude_unset=True))
     return SimpleResponse(detail="User updated")
+
+@router.delete(
+    '/me/',
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_user_view(user_id : UserIdDep , repository : RepositoryDep)->None:
+    DeleteUserUseCase(repository).execute(user_id)
+    logger.info("User deleted")
+    return None
+
+@router.get(
+    '/logout/',
+    status_code=status.HTTP_200_OK,
+    response_model=SimpleResponse
+)
+async def user_logout_view(session_id : SessionIdDep , auth : AuthDep):
+    auth.add_token_to_deathlist(session_id)
+    logger.info("Logout user")
+    return SimpleResponse(detail="logout")

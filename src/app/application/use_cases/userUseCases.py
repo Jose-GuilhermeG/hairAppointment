@@ -74,3 +74,10 @@ class UpdateUserUseCase:
                 setattr(user,key,value)
 
         return self.repository.save(user)
+
+class DeleteUserUseCase:
+    def __init__(self , repository : IUserRepository):
+        self.repository = repository
+
+    def execute(self,user_id : int)->None:
+        self.repository.delete_by_id(user_id)

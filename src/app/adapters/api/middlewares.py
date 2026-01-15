@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from sqlmodel import Session
 from types import FunctionType
@@ -19,5 +19,5 @@ class DbSessionMiddleware(
                 session.rollback()
                 raise e
             finally:
-                session.close() 
+                session.close()
         return response

@@ -1,5 +1,6 @@
 from sqlmodel import select
 from sqlmodel import Session , SQLModel
+from sqlalchemy import delete
 
 from src.app.adapters.api.schemas.models import UserModel
 from src.app.application.ports.repository import IUserRepository , IRepository
@@ -30,9 +31,10 @@ class BaseRepositoryDb(IRepository):
         self.session.flush()
         return self.mapper.to_entitie(model)
 
-    def delete(self, entitie):
-        model = self.mapper.to_model(entitie)
-        self.session.delete(model)
+    def delete_by_id(self, id):
+        statement = delete(self._model).where(self._model.id == id)
+        self.exec(statement)
+        self.session.flush()
 
     def all(self, exec = True):
         query = select(self._model)

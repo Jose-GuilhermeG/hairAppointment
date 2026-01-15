@@ -10,6 +10,10 @@ DOT_ENV_FILE = join(BASE_DIR , ".env")
 load_dotenv()
 
 #Basic configs
+SYSTEM_NAME = "Hair cut"
+SYSTEM_VERSION = "0.0.1"
+SYSTEM_DESCRIPTION = "A simple system for managing haircut appointments."
+
 DEBUG = env("Debug")
 SECRET_KEY = env("SECRET_KEY")
 SESSION_EXPIRE_TIME = 600 #seconds

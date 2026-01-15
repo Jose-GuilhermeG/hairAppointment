@@ -18,10 +18,6 @@ class IRepository(
         pass
 
     @abstractmethod
-    def delete(self , entitie : object)->None:
-        pass
-
-    @abstractmethod
     def get(self , field : str , value : any , exec : bool = True):
         pass
 
@@ -31,6 +27,10 @@ class IRepository(
 
     @abstractmethod
     def limit(self , limit : int , offeset : int ,exec : bool = True):
+        pass
+
+    @abstractmethod
+    def delete_by_id(self , id : int)->None:
         pass
 
     @abstractmethod
@@ -66,8 +66,4 @@ class IUserRepository(
 
     @abstractmethod
     def create(self , entitie : User ) -> User:
-        pass
-
-    @abstractmethod
-    def delete(self , entitie : User)->None:
         pass
