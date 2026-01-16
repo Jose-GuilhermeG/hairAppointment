@@ -32,7 +32,7 @@ class Auth:
             raise UnauthorizedException("User don't found")
         return user_id
 
-    def get_user(self , user_id : int) -> User:
+    def get_user(self , user_id : int) -> User | None:
         return self.repository.get("id",user_id)
 
     def create_user_token(self , user_id : int , expire_time : int = SESSION_EXPIRE_TIME)->str:

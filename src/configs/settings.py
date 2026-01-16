@@ -40,4 +40,5 @@ LOG_FORMAT = "[%(levelname)s] %(module)s - %(asctime)s  : %(message)s "
 LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 #tests
-TEST_DATABASE_URI = f"sqlite:////{BASE_DIR}/test_db.sqlite"
+TEST_DATABASE_NAME = "hair_cut_test"
+TEST_DATABASE_URI = f"{DATABASE_ENGINE}://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{TEST_DATABASE_NAME}"

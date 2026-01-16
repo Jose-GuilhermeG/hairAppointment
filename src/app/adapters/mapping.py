@@ -6,7 +6,7 @@ from src.app.domain.entities import User
 class UserMapping(
     IMapping[User]
 ):
-    def to_model(self, entitie : User | list[User]):
+    def to_model(self, entitie : User | None | list[User]):
         if entitie is None:
             return None
 

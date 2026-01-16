@@ -53,7 +53,7 @@ class IUserRepository(
 ):
 
     @abstractmethod
-    def get(self, field, value, exec = True)->User:
+    def get(self, field, value, exec = True)->User | None:
         pass
 
     @abstractmethod

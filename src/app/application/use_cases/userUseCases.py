@@ -29,11 +29,11 @@ class LoginUseCase:
 
     def execute(self , data : dict[str,str])->int:
         user = self.repository.get("email" ,data.get("email",None))
-        password = data.get("password")
+        password = data.get("password",None)
         if not user:
             raise IntegrityException("Doesn't user found with that email")
 
-        if password is None:
+        if password is None or len(password) == 0:
             raise ValidateException("Password is required")
 
         if not self.passwordHash.verify(password,user.password):
@@ -48,6 +48,8 @@ class SetPasswordUseCase:
 
     def execute(self, user_id : int ,new_password : str) -> None:
         user = self.repository.get("id" , user_id)
+        if user is None:
+            raise IntegrityException("User don't found")
         hashed_pass = self.passwordHash.encrypt(new_password)
         user.password = hashed_pass
         self.repository.save(user)
@@ -57,7 +59,10 @@ class UserDetailsUseCase:
        self.repository = repository
 
     def execute(self,user_id : int) -> User:
-        return self.repository.get("id",user_id)
+        user = self.repository.get("id",user_id)
+        if user is None:
+            raise IntegrityException("User don't found")
+        return user
 
 class ListUsersUseCase:
     def __init__(self , repository : IUserRepository):
@@ -72,6 +77,9 @@ class UpdateUserUseCase:
 
     def execute(self , user_id : int ,data : dict[str , str]) -> User:
         user = self.repository.get("id" , user_id)
+
+        if user is None:
+            raise IntegrityException("User don't found")
 
         for key , value in data.items():
             if hasattr(user,key):
