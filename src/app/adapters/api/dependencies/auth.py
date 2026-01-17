@@ -48,6 +48,12 @@ class Auth:
 
         self.dataPersistence.sadd(self.deathList , decode_token)
 
+    def ckeck_user_has_permission(self , user_id : int , permission : str)->None:
+        permissions = self.repository.get_user_permissions_by_id(user_id)
+        if permission.lower() not in permissions:
+            raise UnauthorizedException("user has not autorization")
+
+
 async def get_auth( repository : UserRepositoryDep) -> Auth:
     return Auth(redis , repository , Base64Encrypt())
 

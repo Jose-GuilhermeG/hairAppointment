@@ -10,6 +10,7 @@ from src.app.adapters.api.dependencies.repository import (
 from src.app.adapters.api.schemas.serializers import (
     SimpleResponse,
     UpdateUser,
+    UserAppointmentList,
     UserLoginIn,
     UserProfile,
     UserRegisterIn,
@@ -18,6 +19,7 @@ from src.app.adapters.api.schemas.serializers import (
 from src.app.adapters.hashEncrypt import BcryptHashEncrypt
 from src.app.application.use_cases.userUseCases import (
     DeleteUserUseCase,
+    ListUserAppointment,
     ListUsersUseCase,
     LoginUseCase,
     RegisterUserCase,
@@ -84,7 +86,8 @@ async def change_password_view(repository : RepositoryDep,user_id : UserIdDep , 
     status_code=status.HTTP_200_OK,
     response_model=list[UserProfile]
 )
-async def list_users_view(repository : RepositoryDep):
+async def list_users_view(repository : RepositoryDep ,user_id : UserIdDep, auth : AuthDep):
+    auth.ckeck_user_has_permission(user_id,"is_staff")
     users = ListUsersUseCase(repository).execute()
     return [UserProfile(email=user.email , name = user.name) for user in users ]
 
@@ -112,6 +115,16 @@ async def delete_user_view(user_id : UserIdDep , repository : RepositoryDep)->No
     response_model=SimpleResponse
 )
 async def user_logout_view(session_id : SessionIdDep , auth : AuthDep):
+    auth.get_user_id(session_id)
     auth.add_token_to_deathlist(session_id)
     logger.info("Logout user")
     return SimpleResponse(detail="logout")
+
+@router.get(
+    '/me/appointments/',
+    status_code=status.HTTP_200_OK,
+    response_model=list[UserAppointmentList]
+)
+async def list_user_appointment(user_id : UserIdDep , repository : RepositoryDep):
+    appointments = ListUserAppointment(repository).execute(user_id)
+    return [ UserAppointmentList(started_at=appointment.started_at , finish_at=appointment.finish_at , type=appointment.type) for appointment in appointments]

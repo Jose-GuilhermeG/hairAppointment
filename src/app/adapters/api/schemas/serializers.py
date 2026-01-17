@@ -1,4 +1,9 @@
+from datetime import datetime
+from typing import Optional
+
 from pydantic import BaseModel, EmailStr
+
+from src.app.domain.enums import HairCutEnum
 
 
 class SimpleResponse(BaseModel):
@@ -32,3 +37,22 @@ class UpdateUser(
 ):
 
     name : str | None
+
+class AppointmentList(
+    BaseModel
+):
+    started_at : datetime
+    finish_at : datetime
+
+
+class UserAppointmentList(
+    AppointmentList
+):
+    type : HairCutEnum
+
+class AppointmentCreateIn(
+    BaseModel
+):
+    started_at : datetime
+    finish_at :  Optional[datetime] = None
+    type : HairCutEnum

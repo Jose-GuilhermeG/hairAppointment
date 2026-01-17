@@ -1,6 +1,6 @@
 from src.app.application.ports.hashsEncrypt import IHashEncrypt
 from src.app.application.ports.repository import IUserRepository
-from src.app.domain.entities import User
+from src.app.domain.entities import Appointment, User
 from src.app.domain.exceptions import IntegrityException, ValidateException
 
 
@@ -93,3 +93,10 @@ class DeleteUserUseCase:
 
     def execute(self,user_id : int)->None:
         self.repository.delete_by_id(user_id)
+
+class ListUserAppointment:
+    def __init__(self , user_repository : IUserRepository):
+        self.user_repository = user_repository
+
+    def execute(self , user_id : int)->list[Appointment]:
+        return self.user_repository.get_user_with_appointment_by_id(user_id)

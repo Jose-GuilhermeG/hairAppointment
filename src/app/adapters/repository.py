@@ -1,8 +1,21 @@
 from sqlalchemy import delete
+from sqlalchemy.orm import selectinload
 from sqlmodel import Session, SQLModel, select
 
-from src.app.adapters.api.schemas.models import UserModel
-from src.app.application.ports.repository import IRepository, IUserRepository
+from src.app.adapters.api.schemas.models import (
+    AppointmentModel,
+    DayModel,
+    PermissionModel,
+    UserModel,
+    UserPermissionModel,
+)
+from src.app.application.ports.repository import (
+    IAppointmentRepository,
+    IDayRepository,
+    IRepository,
+    IUserRepository,
+)
+from src.app.domain.exceptions import IntegrityException
 
 
 class BaseRepositoryDb(IRepository):
@@ -61,3 +74,46 @@ class UserRepositoryDb(
     IUserRepository,
 ):
     _model = UserModel
+
+    def __init__(self, mapper, session , appointment_mapping):
+        super().__init__(mapper, session)
+        self.appointment_mapping = appointment_mapping
+
+    def get_user_permissions_by_id(self, user_id):
+        query = select(PermissionModel).join(UserPermissionModel).join(self._model).where(self._model.id == user_id)
+        permissions = self.exec(query).all()
+        return [permission.name for permission in permissions]
+
+    def get_user_with_appointment_by_id(self, user_id):
+        query =select(self._model).options(selectinload(self._model.appointments)).where(self._model.id == user_id)
+        user = self.exec(query).first()
+        if user is None:
+            raise IntegrityException("user don't found")
+        return self.appointment_mapping.to_entitie(user.appointments)
+
+
+
+class AppointmentRepositoryDb(
+    BaseRepositoryDb,
+    IAppointmentRepository
+):
+    _model = AppointmentModel
+
+class DayRepositoryDb(
+    BaseRepositoryDb,
+    IDayRepository
+):
+    _model = DayModel
+
+    def __init__(self, mapper, session,appoinment_mapping):
+        super().__init__(mapper, session)
+        self.appointment_mapping = appoinment_mapping
+
+    def get_day_appointments_by_date(self, date):
+        query = select(DayModel).options(selectinload(DayModel.appointments)).where(DayModel.date == date)
+        day = self.exec(query).first()
+
+        if not day:
+            raise IntegrityException("Day don't found")
+
+        return self.mapper.to_entitie(day),self.appointment_mapping.to_entitie(day.appointments)

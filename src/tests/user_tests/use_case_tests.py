@@ -5,7 +5,7 @@ from src.app.application.ports.repository import IUserRepository
 from src.app.application.use_cases import userUseCases
 from src.app.domain.entities import User
 from src.app.domain.exceptions import IntegrityException, ValidateException
-from src.tests.user_tests.user_fixtures import get_hash_encypt
+from src.tests.user_tests.user_fixtures import get_hash_encypt, hash_encrypt
 
 
 @pytest.fixture

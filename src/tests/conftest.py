@@ -1,7 +1,7 @@
 import pytest
 from sqlmodel import Session, SQLModel, create_engine
 
-from src.app.adapters.mapping import UserMapping
+from src.app.adapters.mapping import AppointmentMapping, UserMapping
 from src.app.adapters.repository import UserRepositoryDb
 from src.app.application.ports.repository import IUserRepository
 from src.app.domain.entities import User
@@ -32,4 +32,4 @@ def user_mapping() -> UserMapping:
 
 @pytest.fixture
 def user_repository(session , user_mapping) -> IUserRepository:
-    return UserRepositoryDb(user_mapping,session)
+    return UserRepositoryDb(user_mapping,session,AppointmentMapping)

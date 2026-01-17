@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, Sequence, TypeVar
 
-T = TypeVar("T")
+TEntity = TypeVar("TEntity")
+TModel = TypeVar("TModel")
 
-class IMapping(ABC , Generic[T]):
+class IMapping(ABC , Generic[TEntity , TModel]):
     @abstractmethod
-    def to_model(self, entitie : T ) -> T | list[T] | None:
+    def to_model(self, entitie : TEntity | Sequence[TEntity] ) -> TModel | list[TModel] | None:
         pass
 
     @abstractmethod
-    def to_entitie(self , model : T ) -> T | list[T] | None:
+    def to_entitie(self , model : TModel | Sequence[TModel] ) -> TEntity | list[TEntity] | None:
         pass

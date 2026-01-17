@@ -1,65 +1,78 @@
-from src.app.adapters.api.schemas.models import UserModel
-from src.app.application.ports.mapping import IMapping
-from src.app.domain.entities import User
+from typing import Generic, Type
 
+from src.app.adapters.api.schemas.models import AppointmentModel, DayModel, UserModel
+from src.app.application.ports.mapping import IMapping, TEntity, TModel
+from src.app.domain.entities import Appointment, Day, User
+
+
+class BaseMapping(
+    IMapping[TEntity , TModel],
+    Generic[TEntity , TModel]
+):
+    _attrs : list[str] = []
+    _model_convertion : Type[TModel]
+    _entitie_convertion : Type[TEntity]
+
+    def get_attrs(self , source_class ):
+        model_data = {}
+        for attr in self._attrs:
+            model_data[attr] = getattr(source_class , attr)
+
+        return model_data
+
+
+    def convertion(self , source_class ,convertion_class):
+        if source_class is None:
+                return None
+
+        if isinstance(source_class,(list , tuple , set)):
+            return self.many_convertion(source_class , convertion_class)
+
+        model_data = self.get_attrs(source_class)
+        model = convertion_class(**model_data)
+
+        if source_class.id is not None:
+            model.id = source_class.id
+
+        return model
+
+    def many_convertion(self, source_class_list , convertion_class):
+        convertion_class_list = []
+
+        for instance in source_class_list:
+            instance_data = self.get_attrs(instance)
+            instance_converted = convertion_class(**instance_data)
+            if instance.id is not None:
+                instance_converted.id = instance.id
+
+            convertion_class_list.append(instance_converted)
+
+        return convertion_class_list
+
+
+    def to_model(self, entitie) -> TModel | list[TModel] | None:
+        return self.convertion(entitie,self._model_convertion)
+
+    def to_entitie(self, model) -> TEntity | list[TEntity] | None:
+        return self.convertion(model,self._entitie_convertion)
 
 class UserMapping(
-    IMapping[User]
+    BaseMapping[User , UserModel],
 ):
-    def to_model(self, entitie : User | None | list[User]):
-        if entitie is None:
-            return None
+    _attrs = ["name" ,"email","password"]
+    _entitie_convertion = User
+    _model_convertion = UserModel
 
-        if isinstance(entitie,(list , tuple , set)):
-            return self.model_many_convertion(entitie)
+class AppointmentMapping(
+    BaseMapping[Appointment , AppointmentModel],
+):
+    _attrs = ["user_id", "day_id" ,"started_at" , "finish_at", "type"]
+    _entitie_convertion = Appointment
+    _model_convertion = AppointmentModel
 
-        user_model = UserModel(name = entitie.name , email = entitie.email , password = entitie.password)
-
-        if entitie.id is not None:
-            user_model.id = entitie.id
-
-        return user_model
-
-    def to_entitie(self, model):
-        if model is None:
-            return None
-
-        if isinstance(model,(list , tuple , set)):
-            return self.entitie_many_convertion(model)
-
-        user_entitie = User(name = model.name , email = model.email , password = model.password)
-
-        if model.id is not None:
-              user_entitie.id = model.id
-
-        return user_entitie
-
-    def entitie_many_convertion(self,model : list[UserModel]) -> list[User]:
-        entitie_user_list = []
-
-        if not isinstance(model, (set , list , tuple)):
-            raise TypeError("models must be a interable")
-
-        for user in model:
-           user_entitie = User(name = user.name , email = user.email , password = user.password)
-           if user.id is not None:
-               user_entitie.id = user.id
-
-           entitie_user_list.append(user_entitie)
-
-        return entitie_user_list
-
-    def model_many_convertion(self,entities : list[User])->list[UserModel]:
-        model_user_list = []
-
-        if not isinstance(entities, (set , list , tuple)):
-            raise TypeError("entities must be a interable")
-
-        for user in entities:
-            user_model = UserModel(name = user.name , email = user.email , password = user.password)
-            if user.id is not None:
-                user_model.id = user.id
-
-            model_user_list.append(user_model)
-
-        return model_user_list
+class DayMapping(
+    BaseMapping[Day , DayModel],
+):
+    _attrs = ["date" , "started_at" , "finish_at"]
+    _entitie_convertion = Day
+    _model_convertion = DayModel
