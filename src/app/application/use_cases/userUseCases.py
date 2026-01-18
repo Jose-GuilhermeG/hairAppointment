@@ -11,11 +11,8 @@ class RegisterUserCase:
 
     def execute(self , data : dict[str , str])->User:
         raw_password = data.pop("password")
-
-        if raw_password is None or len(raw_password) < 8 :
-            raise ValidateException("'password' lenght can't be less then 8")
-
-        password = self.passwordHash.encrypt(raw_password)
+        validate_pass = User.validate_password(raw_password)
+        password = self.passwordHash.encrypt(validate_pass)
         user = User(**data , password=password)
         if self.repository.get("email" , user.email):
             raise IntegrityException("An user with that email alright exists")
@@ -46,13 +43,15 @@ class SetPasswordUseCase:
        self.repository = repository
        self.passwordHash = passwordHash
 
-    def execute(self, user_id : int ,new_password : str) -> None:
+    def execute(self, user_id : int ,new_password : str) -> User:
         user = self.repository.get("id" , user_id)
         if user is None:
             raise IntegrityException("User don't found")
-        hashed_pass = self.passwordHash.encrypt(new_password)
+
+        validate_pass = User.validate_password(new_password)
+        hashed_pass = self.passwordHash.encrypt(validate_pass)
         user.password = hashed_pass
-        self.repository.save(user)
+        return self.repository.save(user)
 
 class UserDetailsUseCase:
     def __init__(self , repository : IUserRepository):

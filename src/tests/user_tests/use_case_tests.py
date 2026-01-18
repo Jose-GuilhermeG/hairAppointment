@@ -1,28 +1,36 @@
 import pytest
 
-from src.app.application.ports.hashsEncrypt import IEncryptData
+from src.app.application.ports.hashsEncrypt import IEncryptData, IHashEncrypt
 from src.app.application.ports.repository import IUserRepository
 from src.app.application.use_cases import userUseCases
 from src.app.domain.entities import User
-from src.app.domain.exceptions import IntegrityException, ValidateException
+from src.app.domain.exceptions import (
+    IntegrityException,
+    MinLenghtFieldException,
+    ValidateException,
+)
 from src.tests.user_tests.user_fixtures import get_hash_encypt, hash_encrypt
 
 
 @pytest.fixture
-def register_use_case(user_repository : IUserRepository , hash_encrypt : IEncryptData ):
+def register_use_case(user_repository : IUserRepository , hash_encrypt : IHashEncrypt ):
     return userUseCases.RegisterUserCase(user_repository , hash_encrypt)
 
 @pytest.fixture
-def login_use_case(user_repository : IUserRepository , hash_encrypt : IEncryptData ) :
+def login_use_case(user_repository : IUserRepository , hash_encrypt : IHashEncrypt ) :
     return userUseCases.LoginUseCase(user_repository , hash_encrypt)
 
 @pytest.fixture
 def user_detail_use_case(user_repository):
     return userUseCases.UserDetailsUseCase(user_repository)
 
+@pytest.fixture
+def set_password_use_case(user_repository : IUserRepository , hash_encrypt : IHashEncrypt ):
+    return userUseCases.SetPasswordUseCase(user_repository , hash_encrypt)
+
 class TestRegisterUserCase:
 
-    def test_if_register_is_create_a_user(self,user_repository : IUserRepository , simple_user_data : dict , hash_encrypt : IEncryptData ):
+    def test_if_register_is_create_a_user(self,user_repository : IUserRepository , simple_user_data : dict , hash_encrypt : IHashEncrypt ):
         user = userUseCases.RegisterUserCase(user_repository , hash_encrypt).execute(simple_user_data)
         user_repository.session.commit()
         assert user_repository.get("id" , user.id) is not None , "Register faill"
@@ -89,3 +97,27 @@ class TestUserDetailUseCase:
         user = user_repository.create(simple_user)
         returned_data  = user_detail_use_case.execute(user.id)
         assert user != returned_data
+
+class TestSetPasswordUseCase:
+
+    def test_if_password_is_modify(self,set_password_use_case,simple_user : User,user_repository : IUserRepository,hash_encrypt:IHashEncrypt):
+        new_password = "new_password"
+        user = user_repository.create(simple_user)
+        password = set_password_use_case.execute(user.id,new_password).password
+        assert hash_encrypt.verify(new_password,password)
+
+    def test_if_password_is_modify_with_an_icorect_password(self , set_password_use_case,simple_user : User,user_repository : IUserRepository , hash_encrypt:IHashEncrypt):
+        new_password = "short"
+        user = user_repository.create(simple_user)
+        with pytest.raises(MinLenghtFieldException):
+           set_password_use_case.execute(user.id,new_password)
+
+        password = user_repository.get("id",user.id).password
+        with pytest.raises(ValueError):
+            hash_encrypt.verify(new_password,password)
+
+    def test_if_password_was_set_with_invalid_user(self,set_password_use_case):
+        password = "new_password"
+
+        with pytest.raises(IntegrityException):
+            set_password_use_case.execute(1,password)

@@ -55,12 +55,17 @@ class User:
 
     @password.setter
     def password(self , password : str):
+        validate_password = self.validate_password(password)
+        self.__password = validate_password
+
+    @staticmethod
+    def validate_password(password:str) -> str:
         validate_password = RequiredFieldValidation.validate("password",password)
 
         if len(validate_password) < 8 :
             raise MinLenghtFieldException("'password' lenght can't be less then 8")
 
-        self.__password = validate_password
+        return validate_password
 
     def __repr__(self):
         return f"{self.name}"
