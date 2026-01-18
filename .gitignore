@@ -12,6 +12,7 @@ venv
 ENV
 VENV
 *.sqlite
+*.drawio
 
 #logs
 *.log

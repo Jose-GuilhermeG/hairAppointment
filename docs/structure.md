@@ -81,3 +81,10 @@ this system is divided in two Folders and files into src Folder :
 - adapters : implementation of ports and controllers then uses the use cases , using fast api and another tools
 - configs : has the application settings
 - tests : has the system tests
+
+## Architecture
+the system join two architecture types : hexagonal and clean having in three folders:
+### domain :
+has the business entities who are pure class
+than are responsible for apply business rules as validation and the main logic of system.
+the domain folder has the exceptions class as the bases class (validationException and IntegrityException)
