@@ -4,7 +4,7 @@ from typing import TypedDict
 from src.app.application.ports.repository import IAppointmentRepository, IDayRepository
 from src.app.domain.entities import Appointment
 from src.app.domain.enums import HairCutEnum
-from src.app.domain.exceptions import IntegrityException
+from src.app.domain.exceptions import IntegrityException, UnauthorizedException
 
 
 class AppoinetmentData(TypedDict , total=False):
@@ -49,3 +49,16 @@ class GetAppointment:
 
         appointment = Appointment.create(**data,day_id=day.id) #type: ignore
         return self.repository.create(appointment)
+
+class DeleteAppoiment:
+    def __init__(self , repository : IAppointmentRepository):
+        self.repository = repository
+
+    def execute(self , day : date , schedule : str , user_id : int) -> None:
+        appoinetment = self.repository.get_appointment_by_day_and_schedule(day,schedule)
+        if not appoinetment:
+            raise IntegrityException("appoinetment not found")
+        if appoinetment.user_id != user_id:
+            raise UnauthorizedException()
+
+        self.repository.delete_by_id(appoinetment.id) #type: ignore[arg-type]

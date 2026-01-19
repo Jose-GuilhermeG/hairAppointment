@@ -145,6 +145,9 @@ class Appointment:
 
         self.__type = hair_cut_type
 
+    @property
+    def schedule(self)->str:
+        return f'{self.started_at} - {self.finish_at}'
 
     @classmethod
     def create(cls , user_id : int , day_id : int , started_at : datetime , finish_at : datetime , type : HairCutEnum)->"Appointment":

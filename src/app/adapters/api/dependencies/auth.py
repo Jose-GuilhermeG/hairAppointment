@@ -30,7 +30,7 @@ class Auth:
         is_token_on_deathList = bool(self.dataPersistence.sismember(self.deathList, decode_token))
         if user_id is None or is_token_on_deathList:
             raise UnauthorizedException("User don't found")
-        return user_id
+        return int(user_id)
 
     def get_user(self , user_id : int) -> User | None:
         return self.repository.get("id",user_id)

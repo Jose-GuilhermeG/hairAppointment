@@ -3,6 +3,8 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import EmailStr
+from sqlalchemy import func
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlmodel import Field, Relationship, SQLModel
 
 from src.app.domain.enums import HairCutEnum
@@ -41,3 +43,13 @@ class AppointmentModel(BaseEntitieModel , table = True): #type: ignore[call-arg]
 
     date : DayModel = Relationship(back_populates="appointments")
     user : UserModel = Relationship(back_populates="appointments")
+
+    @hybrid_property
+    def schedule(self)->str:
+        return f"{self.started_at} - {self.finish_at}"
+
+    @schedule.expression #type: ignore[no-redef]
+    def schedule(cls):
+        return func.concat(cls.started_at, " - ", cls.finish_at)
+
+    model_config = { "ignored_types": (hybrid_property,) }

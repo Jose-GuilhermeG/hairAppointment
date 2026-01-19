@@ -99,6 +99,19 @@ class AppointmentRepositoryDb(
 ):
     _model = AppointmentModel
 
+    def get_appointment_by_day_and_schedule(self, day, schedule):
+        query = select(AppointmentModel).join(DayModel).where(DayModel.date == day , AppointmentModel.schedule == schedule)
+        result = self.exec(query).first()
+        return self.mapper.to_entitie(result)
+
+    def get_appointments_by_day(self, day):
+        query = select(AppointmentModel).join(DayModel).where(DayModel.date == day)
+        result = self.exec(query)
+        return self.mapper.to_entitie(result)
+
+    def delet_appointment_by_date_and_schedule(self, day, schedule):
+        delete(AppointmentModel).join(DayModel).where(DayModel.date == day , AppointmentModel.schedule == schedule)
+
 class DayRepositoryDb(
     BaseRepositoryDb,
     IDayRepository

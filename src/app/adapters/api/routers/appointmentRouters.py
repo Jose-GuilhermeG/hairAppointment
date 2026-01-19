@@ -14,6 +14,7 @@ from src.app.adapters.api.schemas.serializers import (
 )
 from src.app.application.use_cases.appointmentUseCases import (
     AppoinetmentData,
+    DeleteAppoiment,
     GetAppointment,
     ListAppointmentsFree,
 )
@@ -53,3 +54,10 @@ async def get_appointment( user_id : UserIdDep, repository : AppointmentReposito
     GetAppointment(repository,day_repository).execute(request_data , date)
 
     return SimpleResponse(detail="corte agendado")
+
+@router.delete(
+    '/{date}/{schedule}/',
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_appoiment(user_id : UserIdDep , repository : AppointmentRepositoryDep ,date : date , schedule : str ):
+    DeleteAppoiment(repository).execute(date,schedule,user_id)

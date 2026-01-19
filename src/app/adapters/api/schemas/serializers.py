@@ -49,6 +49,7 @@ class UserAppointmentList(
     AppointmentList
 ):
     type : HairCutEnum
+    schedule : str
 
 class AppointmentCreateIn(
     BaseModel

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Generic, TypeVar
 
 from src.app.application.ports.mapping import IMapping
@@ -43,8 +43,17 @@ class IRepository(
 class IAppointmentRepository(
     IRepository[Appointment]
 ):
-    pass
+    @abstractmethod
+    def get_appointment_by_day_and_schedule(self,day : date , schedule : str) -> Appointment:
+        pass
 
+    @abstractmethod
+    def get_appointments_by_day(self,day : date)->list[Appointment]:
+        pass
+
+    @abstractmethod
+    def delet_appointment_by_date_and_schedule(self , day : date , schedule : datetime)->None:
+        pass
 
 class IUserRepository(
     IRepository[User]

@@ -127,4 +127,4 @@ async def user_logout_view(session_id : SessionIdDep , auth : AuthDep):
 )
 async def list_user_appointment(user_id : UserIdDep , repository : RepositoryDep):
     appointments = ListUserAppointment(repository).execute(user_id)
-    return [ UserAppointmentList(started_at=appointment.started_at , finish_at=appointment.finish_at , type=appointment.type) for appointment in appointments]
+    return [ UserAppointmentList(started_at=appointment.started_at , finish_at=appointment.finish_at , type=appointment.type , schedule=appointment.schedule) for appointment in appointments]
