@@ -42,3 +42,14 @@ class UserValidationTest:
     def test_if_password_lenght_can_be_less_then_eight(self):
         with pytest.raises(MinLenghtFieldException):
             user = User("teste user","teste@email.com","teste") #noqa
+
+class UserMethodsTest:
+
+    def test_eq_user_method(self , simple_user_data : dict):
+        user_1 = User(**simple_user_data)
+        user_2 = User(**simple_user_data)
+        assert user_1 == user_2
+
+    def test_repr_method(self , simple_user_data : dict):
+        user = User(**simple_user_data)
+        assert str(user) == simple_user_data["name"]

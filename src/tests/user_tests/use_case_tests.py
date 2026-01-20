@@ -28,6 +28,10 @@ def user_detail_use_case(user_repository):
 def set_password_use_case(user_repository : IUserRepository , hash_encrypt : IHashEncrypt ):
     return userUseCases.SetPasswordUseCase(user_repository , hash_encrypt)
 
+@pytest.fixture
+def update_user_use_case(user_repository : IUserRepository):
+    return userUseCases.UpdateUserUseCase(user_repository)
+
 class TestRegisterUserCase:
 
     def test_if_register_is_create_a_user(self,user_repository : IUserRepository , simple_user_data : dict , hash_encrypt : IHashEncrypt ):
@@ -96,7 +100,7 @@ class TestUserDetailUseCase:
     def test_if_detail_is_retuning_correct_data(self,user_detail_use_case,user_repository : IUserRepository,simple_user : User):
         user = user_repository.create(simple_user)
         returned_data  = user_detail_use_case.execute(user.id)
-        assert user != returned_data
+        assert user == returned_data
 
 class TestSetPasswordUseCase:
 
@@ -121,3 +125,16 @@ class TestSetPasswordUseCase:
 
         with pytest.raises(IntegrityException):
             set_password_use_case.execute(1,password)
+
+class TestUserUpdateUseCase:
+
+    def test_if_user_do_not_found_is_raise(self,update_user_use_case):
+        id = 1
+        with pytest.raises(IntegrityException):
+            update_user_use_case.execute(id,{})
+
+    def test_if_data_is_updated(self,update_user_use_case,user_repository : IUserRepository , simple_user : User):
+        user = user_repository.create(simple_user)
+        new_name = "Guilherme"
+        new_user = update_user_use_case.execute(user.id,{"name" : new_name})
+        assert new_user.name ==  new_name

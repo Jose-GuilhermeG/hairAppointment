@@ -6,6 +6,7 @@ from src.app.domain.exceptions import (
     DateFieldException,
     EmailFieldException,
     EmptyFieldException,
+    IntegrityException,
     InvalidChoiceFieldException,
     MinLenghtFieldException,
 )
@@ -66,6 +67,11 @@ class User:
             raise MinLenghtFieldException("'password' lenght can't be less then 8")
 
         return validate_password
+
+    def __eq__(self, value : object)->bool:
+        if not isinstance(value , User):
+            raise IntegrityException("types distints")
+        return self.__dict__ == value.__dict__
 
     def __repr__(self):
         return f"{self.name}"
